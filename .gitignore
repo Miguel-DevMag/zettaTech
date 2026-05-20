@@ -1,0 +1,60 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+*.log
+.DS_Store
+Thumbs.db
+.phpunit.result.cache
+/.phpunit.cache
+
+# Configurações confidenciais e Backups (Crítico para Segurança!)
+.env
+.env.backup
+.env.production
+/auth.json
+/storage/*.key
+
+# Dependências locais de pacotes (Evita repositórios pesados)
+/node_modules
+/vendor
+
+# Compilados de Frontend (Gerados automaticamente pelo Vite)
+/public/build
+/public/hot
+/public/storage
+
+# Configurações de IDEs e Editores
+/.vscode
+/.idea
+/.fleet
+/.nova
+/.zed
+.phpactor.json
+
+# Vagrant / Homestead
+Homestead.json
+Homestead.yaml
+/storage/pail
+```
