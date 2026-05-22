@@ -35,7 +35,7 @@
             
             <!-- CTAs Alinhados e Polidos -->
             <div class="flex flex-col sm:flex-row gap-5 w-full sm:w-auto justify-center">
-                <a href="#encomendar" class="group relative flex items-center justify-center px-12 py-5.5 bg-white text-[#0B0F19] font-extrabold uppercase tracking-[0.25em] text-[11px] transition-all duration-500 overflow-hidden rounded-md hover:shadow-[0_0_40px_rgba(0,229,255,0.4)] transform hover:-translate-y-1">
+                <a href="#reserva" class="group relative flex items-center justify-center px-12 py-5.5 bg-white text-[#0B0F19] font-extrabold uppercase tracking-[0.25em] text-[11px] transition-all duration-500 overflow-hidden rounded-md hover:shadow-[0_0_40px_rgba(0,229,255,0.4)] transform hover:-translate-y-1">
                     <span class="relative z-10 transition-colors duration-300 group-hover:text-white" data-translate="hero-btn-reserva">Reservar Unidade</span>
                     <div class="absolute inset-0 w-0 bg-gradient-to-r from-[#00E5FF] to-blue-600 transition-all duration-500 ease-out group-hover:w-full z-0"></div>
                 </a>

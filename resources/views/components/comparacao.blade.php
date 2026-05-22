@@ -523,7 +523,12 @@
                                n.includes('rita') || n.includes('amalia') || n.includes('irene') || n.includes('lorena') ||
                                n.includes('margarita') || n.includes('tatiana') || n.includes('olga') || n.includes('irina') ||
                                n.includes('svetlana') || n.includes('natasha') || n.includes('anna') || n.includes('anastasia') ||
-                               n.includes('enriqueta');
+                               n.includes('enriqueta') || n.includes('vivinha') || n.includes('fernanda') || n.includes('juliana') ||
+                               n.includes('bruna') || n.includes('camila') || n.includes('bianca') || n.includes('rafaela') ||
+                               n.includes('patricia') || n.includes('sandra') || n.includes('marcia') || n.includes('márcia') ||
+                               n.includes('rosa') || n.includes('flavia') || n.includes('flávia') || n.includes('vanessa') ||
+                               n.includes('vanusa') || n.includes('amelie') || n.includes('amélie') || n.includes('jessica') ||
+                               n.includes('jéssica') || n.includes('joyce') || n.includes('ines') || n.includes('inês');
                     };
 
                     let picked = null;
@@ -570,8 +575,8 @@
                             const utt = new SpeechSynthesisUtterance(phrase);
                             utt.voice = picked;
                             utt.lang = targetLocale;
-                            utt.pitch = isFemale ? 1.18 : 0.72;
-                            utt.rate = isFemale ? 1.0 : 0.82;
+                            utt.pitch = isFemale ? (lang === 'pt' ? 1.45 : 1.25) : 0.72;
+                            utt.rate = isFemale ? (lang === 'pt' ? 1.05 : 1.0) : 0.82;
                             utt.onstart = onStart;
                             utt.onend = utt.onerror = onEnd;
 
@@ -589,8 +594,8 @@
                     const vName = rvVoices[model][lang] || (isFemale ? 'US English Female' : 'UK English Male');
                     console.log('[Zetta Vocal ResponsiveVoice]', model.toUpperCase(), '→', vName, '| Feminino:', isFemale);
                     responsiveVoice.speak(phrase, vName, {
-                        pitch:   isFemale ? 1.15 : 0.72,
-                        rate:    isFemale ? 1.0  : 0.82,
+                        pitch:   isFemale ? (lang === 'pt' ? 1.4 : 1.2) : 0.75,
+                        rate:    isFemale ? (lang === 'pt' ? 1.05 : 1.0) : 0.82,
                         onstart: onStart,
                         onend:   onEnd,
                         onerror: onEnd
