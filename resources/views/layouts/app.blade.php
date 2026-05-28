@@ -17,9 +17,6 @@
     <!-- Estilos globais, cursor e fontes -->
     <style>
         body { font-family: 'Inter', sans-serif; cursor: none; }
-        #navbar {
-            /* Removed translate3d to fix pointer-events issue */
-        }
         /* Oculta scrollbar para visual mais clean */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0B0F19; }
@@ -62,6 +59,8 @@
            Desktop: robô imponente, cabeça aparecendo ~15% abaixo do navbar.
         ──────────────────────────────────────────────────────────────────── */
         #robot-canvas-wrapper {
+            perspective: 1200px;
+            perspective-origin: 50% 10%;
             transform: translateY(12%) scale(1.25);
             transform-origin: center center;
             will-change: transform;
@@ -70,16 +69,32 @@
             #robot-canvas-wrapper { transform: translateY(16%) scale(1.45); }
         }
         @media (min-width: 768px) {
-            #robot-canvas-wrapper { transform: translateY(20%) scale(1.6);  }
+            #robot-canvas-wrapper { transform: translateY(20%) scale(1.6); }
         }
         @media (min-width: 1024px) {
             #robot-canvas-wrapper { transform: translateY(22%) scale(1.75); }
         }
         @media (min-width: 1280px) {
-            #robot-canvas-wrapper { transform: translateY(24%) scale(1.9);  }
+            #robot-canvas-wrapper { transform: translateY(24%) scale(1.9); }
         }
         @media (min-width: 1536px) {
             #robot-canvas-wrapper { transform: translateY(26%) scale(2.05); }
+        }
+
+        #robot-head-rotation {
+            width: 100%;
+            height: 100%;
+            transform: none;
+            transform-origin: 50% 8%;
+            transform-style: preserve-3d;
+            transition: transform 0.08s ease-out;
+            will-change: transform;
+        }
+
+        #cursor-outline.cursor-hover {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 229, 255, 0.1);
         }
 
         /* PREMIUM LIGHT MODE STYLES */
@@ -93,10 +108,10 @@
         body.light-mode .bg-radial-gradient-vignette {
             background: radial-gradient(circle, transparent 35%, #F5F5F7 85%) !important;
         }
-        body.light-mode .bg-[#06080D] {
+        body.light-mode .bg-\[\#06080D\] {
             background-color: #FAFAFC !important;
         }
-        body.light-mode .bg-[#0B0F19] {
+        body.light-mode .bg-\[\#0B0F19\] {
             background-color: #F5F5F7 !important;
         }
         
@@ -224,7 +239,7 @@
         }
 
         /* Blueprint Mode inside models comparison */
-        body.light-mode .blueprint-mode.scanner-card {
+        body.light-mode .blueprint-mode .scanner-card {
             background-color: #06080D !important;
             border-color: rgba(0, 229, 255, 0.4) !important;
             box-shadow: 0 0 50px rgba(0, 229, 255, 0.08) !important;
@@ -354,10 +369,10 @@
     <div class="fixed inset-0 z-0 bg-[#06080D] pointer-events-none">
         <!-- Canvas 3D: posicionado e escalado via CSS (#robot-canvas-wrapper) para proporção perfeita em qualquer tela -->
         <div id="robot-canvas-wrapper" class="absolute inset-0 flex items-center justify-center">
-            <canvas id="robot-3d-canvas" class="w-full h-full pointer-events-auto"></canvas>
+            <div id="robot-head-rotation" class="w-full h-full">
+                <canvas id="robot-3d-canvas" class="w-full h-full pointer-events-auto"></canvas>
+            </div>
         </div>
-        
-        <!-- Máscara de Gradiente Suave Centralizado para Leitura do Texto -->
         <div class="absolute inset-0 bg-gradient-to-b from-[#0B0F19]/80 via-transparent to-[#06080D] pointer-events-none"></div>
         <div class="absolute inset-0 bg-radial-gradient-vignette pointer-events-none opacity-60"></div>
     </div>
@@ -366,7 +381,7 @@
     @include('components.navbar')
 
     <!-- Camada Dianteira (z-10): Conteúdo Fluído da Página -->
-    <main class="relative z-10 flex flex-col min-h-screen pointer-events-none">
+    <main class="relative z-10 flex flex-col min-h-screen">
         @yield('content')
     </main>
 
@@ -379,19 +394,106 @@
         const cursorDot = document.getElementById('cursor-dot');
         const cursorOutline = document.getElementById('cursor-outline');
 
+        const robotHeadRotation = document.getElementById('robot-head-rotation');
+          window.robotHeadSplineObject = null;
+
+          function findSplineHead(app) {
+              if (!app) return null;
+
+              const names = [
+                  'Head',
+                  'head',
+                  'HeadMesh',
+                  'headMesh',
+                  'Head_01',
+                  'head_01',
+                  'HeadMesh_0',
+                  'Head_0',
+                  'Face',
+                  'face',
+                  'Eye',
+                  'eye'
+              ];
+
+              if (typeof app.findObjectByName === 'function') {
+                  for (const name of names) {
+                      const found = app.findObjectByName(name);
+                      if (found) return found;
+                  }
+              }
+
+              if (typeof app.getAllObjects === 'function') {
+                  for (const obj of app.getAllObjects()) {
+                      const objName = String(obj.name || obj.data?.name || '');
+                      if (/head|face|eye/i.test(objName)) {
+                          return obj;
+                      }
+                  }
+              }
+
+              return null;
+          }
+
+          function updateSplineHeadRotation(rotateX, rotateY) {
+              const headObject = window.robotHeadSplineObject;
+              if (!headObject) return false;
+
+              const radiansX = (rotateX * Math.PI) / 180;
+              const radiansY = (rotateY * Math.PI) / 180;
+
+              if (headObject.rotation) {
+                  if (typeof headObject.rotation.set === 'function') {
+                      headObject.rotation.set(radiansX, radiansY, headObject.rotation.z || 0);
+                  } else {
+                      headObject.rotation.x = radiansX;
+                      headObject.rotation.y = radiansY;
+                  }
+              } else if (typeof headObject.setRotation === 'function') {
+                  headObject.setRotation(radiansX, radiansY, 0);
+              }
+
+              if (typeof headObject.updateMatrixWorld === 'function') {
+                  headObject.updateMatrixWorld(true);
+              }
+
+              return true;
+          }
+
+          function updateRobotMotion(clientX, clientY) {
+              const offsetX = (clientX / window.innerWidth) * 2 - 1;
+              const offsetY = (clientY / window.innerHeight) * 2 - 1;
+
+              const rotateX = -offsetY * 3.4;
+              const rotateY = offsetX * 10.5;
+
+              // Tenta rotacionar o objeto 'head' no Spline se encontrado.
+              // Se não for possível, não aplicamos transformações que movam o canvas inteiro.
+              const applied = updateSplineHeadRotation(rotateX, rotateY);
+              return applied;
+          }
+
+        // Reinstala listener do mouse para atualizar cursor e chamar a lógica de cabeça
         window.addEventListener('mousemove', function(e) {
             const posX = e.clientX;
             const posY = e.clientY;
             
-            if(cursorDot && cursorOutline) {
+            if (cursorDot) {
                 cursorDot.style.left = posX + 'px';
                 cursorDot.style.top = posY + 'px';
-                
+            }
+            if (cursorOutline) {
                 cursorOutline.animate({
                     left: posX + 'px',
                     top: posY + 'px'
                 }, { duration: 500, fill: 'forwards' });
             }
+
+            updateRobotMotion(posX, posY);
+        });
+
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('pointerenter', () => cursorOutline?.classList.add('cursor-hover'));
+            el.addEventListener('pointerleave', () => cursorOutline?.classList.remove('cursor-hover'));
         });
 
         // ----------------------------------------------------
@@ -680,9 +782,56 @@
     <script type="module">
         import { Application } from 'https://unpkg.com/@splinetool/runtime@1.9.21/build/runtime.js';
         const canvas = document.getElementById('robot-3d-canvas');
+
+        function findSplineHead(app) {
+            if (!app) return null;
+
+            const names = [
+                'Head',
+                'head',
+                'HeadMesh',
+                'headMesh',
+                'Head_01',
+                'head_01',
+                'HeadMesh_0',
+                'Head_0',
+                'Face',
+                'face',
+                'Eye',
+                'eye'
+            ];
+
+            if (typeof app.findObjectByName === 'function') {
+                for (const name of names) {
+                    const found = app.findObjectByName(name);
+                    if (found) return found;
+                }
+            }
+
+            if (typeof app.getAllObjects === 'function') {
+                for (const obj of app.getAllObjects()) {
+                    const objName = String(obj.name || obj.data?.name || '');
+                    if (/head|face|eye/i.test(objName)) {
+                        return obj;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         if (canvas) {
             const app = new Application(canvas);
-            app.load('https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode').catch(console.error);
+            app.load('https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode')
+                .then(() => {
+                    const headObject = findSplineHead(app);
+                    if (headObject) {
+                        window.robotHeadSplineObject = headObject;
+                    } else {
+                        console.warn('Spline head object não encontrado. Usando fallback de rotação.');
+                    }
+                })
+                .catch(console.error);
         }
 
         // Inicializa AOS

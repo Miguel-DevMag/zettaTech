@@ -58,7 +58,7 @@
                 </div>
                 <div class="group">
                     <span class="block text-3xl lg:text-4xl font-light text-white tracking-tighter group-hover:text-[#00E5FF] transition-colors duration-300"><span class="text-[#00E5FF] text-xl font-bold group-hover:text-white transition-colors duration-300">L</span>bD</span>
-                    <span class="block text-[8px] lg:text-[9px] text-gray-400 tracking-[0.25em] uppercase mt-2 font-bold transition-colors" data-translate="comp-card2-spec3-label" data-translate="hero-stat-3">Aprendizado Contínuo</span>
+                    <span class="block text-[8px] lg:text-[9px] text-gray-400 tracking-[0.25em] uppercase mt-2 font-bold transition-colors" data-translate="hero-stat-3">Aprendizado Contínuo</span>
                 </div>
             </div>
 
